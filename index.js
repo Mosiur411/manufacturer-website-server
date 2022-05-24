@@ -54,7 +54,7 @@ async function run() {
             const result = await collectionReview.insertOne(data);
             res.send(result)
         })
-        app.get('/review',Verify,async (req, res) => {
+        app.get('/review',async (req, res) => {
             //http://localhost:5000/review
             const data = {};
             const result = await collectionReview.find(data).limit(6).toArray();
@@ -83,14 +83,12 @@ async function run() {
         app.put('/email/admin/:id',async (req, res) => {
             const email = req.params.id;
             const filter={email:email}
-            // const result = await collectionUser.findOne(query);
             const options = { upsert: true };
             const updateDoc = {
                 $set: {Admin:'role'},
             };
             const result = await collectionUser.updateOne(filter, updateDoc, options);
-            console.log(result)
-            // res.send(result)
+            res.send(result)
         })
         /* ========================********************** end User and Token =====================***********************/
         /* ========================********************** start MyProfile =====================***********************/
