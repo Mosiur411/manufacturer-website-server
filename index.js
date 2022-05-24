@@ -14,22 +14,67 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         await client.connect();
-        const collection = client.db("Manufacturer").collection("services");
+        const collectionServices = client.db("Manufacturer").collection("services");//services
+        const collectionReview = client.db("Manufacturer").collection("review");//review
+        const collectionUser = client.db("Manufacturer").collection("user");//user
+        const collectionMyProfile = client.db("Manufacturer").collection("myProfile");//review
         /* ========================********************** start services =====================***********************/
         app.post('/services',async(req,res)=>{
             const data =req.body;
-            const result = await collection.insertOne(data);
+            const result = await collectionServices.insertOne(data);
             res.send(result)
         })
         
         app.get('/service',async(req,res)=>{
             // http://localhost:5000/service
             const data ={};
-            const result = await collection.find(data).toArray();
+            const result = await collectionServices.find(data).toArray();
             res.send(result)
         })
 
         /* ========================********************** end services =====================***********************/
+        /* ========================********************** start add Review =====================***********************/
+         app.post('/review',async(req,res)=>{
+            const data =req.body;
+            const result = await collectionReview.insertOne(data);
+            res.send(result)
+        })
+        app.get('/review',async(req,res)=>{
+            //http://localhost:5000/review
+            const data ={};
+            const result = await collectionReview.find(data).limit(6).toArray();
+            res.send(result)
+        })
+        /* ========================********************** end Review  Review =====================***********************/
+        /* ========================********************** Start User and Token   =====================***********************/
+        app.put('/email/:id',async(req,res)=>{
+            const email = req.params.id;
+            const filter={email:email}
+            const user =req.body;
+            const options = { upsert: true };
+            const updateDoc = {
+                $set:user,
+              };
+            const result = await collectionUser.updateOne(filter, updateDoc, options);
+            res.send(result)
+
+        })
+
+
+
+
+
+
+
+
+        /* ========================********************** end User and Token =====================***********************/
+        /* ========================********************** start MyProfile =====================***********************/
+        app.post('/myProfile',async(req,res)=>{
+            const data =req.body;
+            const result = await collectionReview.insertOne(data);
+            res.send(result)
+        })
+        /* ========================********************** end MyProfile =====================***********************/
   
 
     } finally {
