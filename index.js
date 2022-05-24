@@ -74,7 +74,24 @@ async function run() {
             const Token = jwt.sign({ email: email }, "c01029fc9d3b347a82c7f2db0024aa57fca487cac10a61f3d6499045f3243cab585ead26022ae2b503987480cb0e1173931a9f1e96260fa33f0914e60fda76da");
             res.send({ result, Token })
         })
-
+        app.get('/email',async (req, res) => {
+            //http://localhost:5000/email
+            const data = {};
+            const result = await collectionUser.find(data).toArray();
+            res.send(result)
+        })
+        app.put('/email/admin/:id',async (req, res) => {
+            const email = req.params.id;
+            const filter={email:email}
+            // const result = await collectionUser.findOne(query);
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {Admin:'role'},
+            };
+            const result = await collectionUser.updateOne(filter, updateDoc, options);
+            console.log(result)
+            // res.send(result)
+        })
         /* ========================********************** end User and Token =====================***********************/
         /* ========================********************** start MyProfile =====================***********************/
         app.post('/myProfile', async (req, res) => {
