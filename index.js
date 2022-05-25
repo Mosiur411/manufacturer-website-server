@@ -32,6 +32,7 @@ async function run() {
         const collectionServices = client.db("Manufacturer").collection("services");//services
         const collectionReview = client.db("Manufacturer").collection("review");//review
         const collectionUser = client.db("Manufacturer").collection("user");//user
+        const collectionOrder = client.db("Manufacturer").collection("order");//user
         /* ========================********************** start services =====================***********************/
         app.post('/services', async (req, res) => {
             const data = req.body;
@@ -52,12 +53,31 @@ async function run() {
         })
         /* =============order payment  ===============  */
         app.get('/service/:id', async (req, res) => {
-            const data =req.params.id;
-            const id={_id:ObjectId(data)}
+            const data = req.params.id;
+            const id = { _id: ObjectId(data) }
             const result = await collectionServices.findOne(id);
             res.send(result)
         })
+        app.put('/service/Update/:id', async (req, res) => {
+            const data = req.params.id;
+            const id = { _id: ObjectId(data) }
+            const filter = req.body;
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: filter,
+            };
+            const result = await collectionServices.updateOne(id, updateDoc, options);
+            res.send(result)
+        })
         /* ========================********************** end services =====================***********************/
+        /* ========================********************** start add Order =====================***********************/
+        app.post('/service/order', async (req, res) => {
+            const data = req.body;
+            const result = await collectionOrder.insertOne(data);
+            res.send(result)
+        })
+
+        /* ========================********************** start add Order =====================***********************/
         /* ========================********************** start add Review =====================***********************/
         app.post('/review', async (req, res) => {
             const data = req.body;
