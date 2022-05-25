@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express();
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId, ServerDescriptionChangedEvent } = require('mongodb');
 const jwt = require('jsonwebtoken');
 const cors = require('cors')
 require('dotenv').config();
@@ -32,7 +32,7 @@ async function run() {
         const collectionServices = client.db("Manufacturer").collection("services");//services
         const collectionReview = client.db("Manufacturer").collection("review");//review
         const collectionUser = client.db("Manufacturer").collection("user");//user
-        const collectionOrder = client.db("Manufacturer").collection("order");//user
+        const collectionOrder = client.db("Manufacturer").collection("order");//order
         /* ========================********************** start services =====================***********************/
         app.post('/services', async (req, res) => {
             const data = req.body;
@@ -74,6 +74,19 @@ async function run() {
         app.post('/service/order', async (req, res) => {
             const data = req.body;
             const result = await collectionOrder.insertOne(data);
+            res.send(result)
+        })
+        app.get('/service/order/user/:id', async (req, res) => {
+            const data = req.params.id;
+            const filter ={email:data}
+            const result = await collectionOrder.find(filter).toArray();
+            res.send(result)
+        })
+        app.get('/service/order/payment/:id', async (req, res) => {
+            const data = req.params.id;
+            const id = { _id: ObjectId(data) }
+            const result = await collectionOrder.find(id).toArray();
+            console.log(result)
             res.send(result)
         })
 
