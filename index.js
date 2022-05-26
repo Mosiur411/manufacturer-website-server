@@ -1,12 +1,14 @@
 const express = require('express')
 const app = express();
 const port = process.env.PORT || 5000;
+require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId, ServerDescriptionChangedEvent } = require('mongodb');
 const jwt = require('jsonwebtoken');
 const cors = require('cors')
-require('dotenv').config();
+
 
 /* ============= start middleware =============== */
+const stripe = require("stripe")(process.env.STRIPE_API_KEYS);
 app.use(cors())
 app.use(express.json())
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.fpbxva8.mongodb.net/?retryWrites=true&w=majority`;
@@ -33,6 +35,7 @@ async function run() {
         const collectionReview = client.db("Manufacturer").collection("review");//review
         const collectionUser = client.db("Manufacturer").collection("user");//user
         const collectionOrder = client.db("Manufacturer").collection("order");//order
+        const collectionPayment = client.db("Manufacturer").collection("payment");//Payment
         /* ========================********************** start services =====================***********************/
         app.post('/services', async (req, res) => {
             const data = req.body;
@@ -69,6 +72,7 @@ async function run() {
             const result = await collectionServices.updateOne(id, updateDoc, options);
             res.send(result)
         })
+
         /* ========================********************** end services =====================***********************/
         /* ========================********************** start add Order =====================***********************/
         app.post('/service/order', async (req, res) => {
@@ -78,7 +82,7 @@ async function run() {
         })
         app.get('/service/order/user/:id', async (req, res) => {
             const data = req.params.id;
-            const filter ={email:data}
+            const filter = { email: data }
             const result = await collectionOrder.find(filter).toArray();
             res.send(result)
         })
@@ -86,9 +90,39 @@ async function run() {
             const data = req.params.id;
             const id = { _id: ObjectId(data) }
             const result = await collectionOrder.find(id).toArray();
-            console.log(result)
             res.send(result)
         })
+        app.patch('/service/success/payment/:id', async (req, res) => {
+            const data = req.params.id;
+            const id = { _id: ObjectId(data) }
+            const user = req.body;
+            console.log(user)
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    paid: true,
+                    user
+                },
+            };
+            await collectionPayment.insertOne(user);
+            const result = await collectionOrder.updateOne(id, updateDoc, options);
+            res.send(result)
+        })
+
+        app.delete('/service/payment/delete/:id', async (req, res) => {
+            const ProductId = req.params.id;
+            const id = { _id: ObjectId(ProductId) }
+            const PaymentPaid = await collectionOrder.find(id).toArray();
+            console.log(PaymentPaid)
+            if (PaymentPaid.paid) {
+                res.send({ matchMedia: "Not Your Product Delete" })
+            } else {
+                const result = await collectionOrder.deleteOne(id);
+                res.send(result)
+            }
+
+        })
+
 
         /* ========================********************** start add Order =====================***********************/
         /* ========================********************** start add Review =====================***********************/
@@ -165,6 +199,23 @@ async function run() {
             res.send(result.user)
         })
         /* ========================********************** end MyProfile =====================***********************/
+        /* ========================********************** Star Payment  =====================***********************/
+        app.post("/create-payment-intent", async (req, res) => {
+            const product = req.body;
+            const ProductAmount = product.price;
+            const amount = ProductAmount * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: "usd",
+                payment_method_types: [
+                    "card"
+                ],
+            });
+            res.send({
+                clientSecret: paymentIntent.client_secret,
+            });
+        })
+        /* ========================********************** end Payment =====================***********************/
 
 
     } finally {
