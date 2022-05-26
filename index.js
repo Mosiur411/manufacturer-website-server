@@ -37,12 +37,12 @@ async function run() {
         const collectionOrder = client.db("Manufacturer").collection("order");//order
         const collectionPayment = client.db("Manufacturer").collection("payment");//Payment
         /* ========================********************** start services =====================***********************/
-        app.post('/services', async (req, res) => {
+        app.post('/services',async (req, res) => {
             const data = req.body;
             const result = await collectionServices.insertOne(data);
             res.send(result)
         })
-        app.get('/service',Verify,async (req, res) => {
+        app.get('/service',async (req, res) => {
             // http://localhost:5000/service
             const data = {};
             const result = await collectionServices.find(data).toArray();
@@ -55,7 +55,7 @@ async function run() {
             res.send(result)
         })
         /* =============order payment  ===============  */
-        app.get('/service/:id',Verify,async (req, res) => {
+        app.get('/service/:id',async (req, res) => {
             const data = req.params.id;
             const id = { _id: ObjectId(data) }
             const result = await collectionServices.findOne(id);
@@ -76,7 +76,7 @@ async function run() {
         /* ========================********************** end services =====================***********************/
         /* ========================********************** start add Order =====================***********************/
         // ALL order get admin
-        app.get('/service/Order/ALL',Verify,async (req, res) => {
+        app.get('/service/Order/ALL',async (req, res) => {
             const filter = {}
             const result = await collectionOrder.find(filter).toArray();
             res.send(result)
@@ -108,13 +108,13 @@ async function run() {
             const result = await collectionOrder.insertOne(data);
             res.send(result)
         })
-        app.get('/service/order/user/:id',Verify,async (req, res) => {
+        app.get('/service/order/user/:id',async (req, res) => {
             const data = req.params.id;
             const filter = { email: data }
             const result = await collectionOrder.find(filter).toArray();
             res.send(result)
         })
-        app.get('/service/order/payment/:id',Verify,async (req, res) => {
+        app.get('/service/order/payment/:id',async (req, res) => {
             const data = req.params.id;
             const id = { _id: ObjectId(data) }
             const result = await collectionOrder.find(id).toArray();
@@ -154,7 +154,7 @@ async function run() {
             const result = await collectionReview.insertOne(data);
             res.send(result)
         })
-        app.get('/review',Verify,async (req, res) => {
+        app.get('/review',async (req, res) => {
             //http://localhost:5000/review
             const data = {};
             const result = await collectionReview.find(data).limit(6).toArray();
