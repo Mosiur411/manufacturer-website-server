@@ -42,7 +42,7 @@ async function run() {
             const result = await collectionServices.insertOne(data);
             res.send(result)
         })
-        app.get('/service', async (req, res) => {
+        app.get('/service',Verify,async (req, res) => {
             // http://localhost:5000/service
             const data = {};
             const result = await collectionServices.find(data).toArray();
@@ -55,7 +55,7 @@ async function run() {
             res.send(result)
         })
         /* =============order payment  ===============  */
-        app.get('/service/:id', async (req, res) => {
+        app.get('/service/:id',Verify,async (req, res) => {
             const data = req.params.id;
             const id = { _id: ObjectId(data) }
             const result = await collectionServices.findOne(id);
@@ -75,18 +75,46 @@ async function run() {
 
         /* ========================********************** end services =====================***********************/
         /* ========================********************** start add Order =====================***********************/
+        // ALL order get admin
+        app.get('/service/Order/ALL',Verify,async (req, res) => {
+            const filter = {}
+            const result = await collectionOrder.find(filter).toArray();
+            res.send(result)
+        })
+
+        // ALL order  delete admin
+        app.delete('/service/Order/ALLdelete/:id', async (req, res) => {
+            const ProductId = req.params.id;
+            const id = { _id: ObjectId(ProductId) }
+            const result = await collectionOrder.deleteOne(id);
+            res.send(result)
+        })
+        // ALL order  shift admin
+        app.patch('/service/Order/pending/:id', async (req, res) => {
+            const ProductId = req.params.id;
+            const id = { _id: ObjectId(ProductId) }
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {shift:'shift'},
+            };
+            const result = await collectionOrder.updateOne(id, updateDoc, options)
+            res.send(result)
+        })
+
+
+
         app.post('/service/order', async (req, res) => {
             const data = req.body;
             const result = await collectionOrder.insertOne(data);
             res.send(result)
         })
-        app.get('/service/order/user/:id', async (req, res) => {
+        app.get('/service/order/user/:id',Verify,async (req, res) => {
             const data = req.params.id;
             const filter = { email: data }
             const result = await collectionOrder.find(filter).toArray();
             res.send(result)
         })
-        app.get('/service/order/payment/:id', async (req, res) => {
+        app.get('/service/order/payment/:id',Verify,async (req, res) => {
             const data = req.params.id;
             const id = { _id: ObjectId(data) }
             const result = await collectionOrder.find(id).toArray();
@@ -96,7 +124,6 @@ async function run() {
             const data = req.params.id;
             const id = { _id: ObjectId(data) }
             const user = req.body;
-            console.log(user)
             const options = { upsert: true };
             const updateDoc = {
                 $set: {
@@ -113,17 +140,13 @@ async function run() {
             const ProductId = req.params.id;
             const id = { _id: ObjectId(ProductId) }
             const PaymentPaid = await collectionOrder.find(id).toArray();
-            console.log(PaymentPaid)
-            if (PaymentPaid.paid) {
-                res.send({ matchMedia: "Not Your Product Delete" })
+            if (PaymentPaid[0].paid) {
+                res.send({ massage: "Not Your Product Delete" })
             } else {
                 const result = await collectionOrder.deleteOne(id);
                 res.send(result)
             }
-
         })
-
-
         /* ========================********************** start add Order =====================***********************/
         /* ========================********************** start add Review =====================***********************/
         app.post('/review', async (req, res) => {
@@ -131,7 +154,7 @@ async function run() {
             const result = await collectionReview.insertOne(data);
             res.send(result)
         })
-        app.get('/review', async (req, res) => {
+        app.get('/review',Verify,async (req, res) => {
             //http://localhost:5000/review
             const data = {};
             const result = await collectionReview.find(data).limit(6).toArray();
@@ -151,7 +174,7 @@ async function run() {
             const Token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET);
             res.send({ result, Token })
         })
-        app.get('/email', async (req, res) => {
+        app.get('/email',Verify,async (req, res) => {
             //http://localhost:5000/email
             const data = {};
             const result = await collectionUser.find(data).toArray();
