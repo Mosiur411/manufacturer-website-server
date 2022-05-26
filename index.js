@@ -43,7 +43,7 @@ async function run() {
             res.send(result)
         })
         app.get('/service',async (req, res) => {
-            // http://localhost:5000/service
+            // http://localhost:5000/service 
             const data = {};
             const result = await collectionServices.find(data).toArray();
             res.send(result)
