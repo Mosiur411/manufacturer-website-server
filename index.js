@@ -174,7 +174,7 @@ async function run() {
             const Token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET);
             res.send({ result, Token })
         })
-        app.get('/email',Verify,async (req, res) => {
+        app.get('/email',async (req, res) => {
             //http://localhost:5000/email
             const data = {};
             const result = await collectionUser.find(data).toArray();
