@@ -149,12 +149,12 @@ async function run() {
         })
         /* ========================********************** start add Order =====================***********************/
         /* ========================********************** start add Review =====================***********************/
-        app.post('/review',Verify,async (req, res) => {
+        app.post('/review',async (req, res) => {
             const data = req.body;
             const result = await collectionReview.insertOne(data);
             res.send(result)
         })
-        app.get('/review',Verify,async (req, res) => {
+        app.get('/review',async (req, res) => {
             //http://localhost:5000/review
             const data = {};
             const result = await collectionReview.find(data).limit(6).toArray();
